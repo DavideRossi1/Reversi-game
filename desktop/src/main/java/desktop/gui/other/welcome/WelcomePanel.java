@@ -16,7 +16,7 @@ class WelcomePanel {
     private GameSettings gameSettings;
 
     WelcomePanel() {
-        gameSettings = new GameSettings(true, true, true);
+        gameSettings = new GameSettings(true, true, true);  // improvement: use an enum to represent a game setting, so that it is more readable and generalizable
         gameMode = new SingleSettingPanel(numberOfGameModes, "Game Mode", "Select a game mode:", new String[]{"Human vs Human", "Human vs Computer"});
         difficulty = new SingleSettingPanel(numberOfDifficulties, "Difficulty", "Select a difficulty", new String[]{"Easy", "Hard"});
         firstPlayer = new SingleSettingPanel(numberOfPlayers, "Who plays first?", "Select your color:", new String[]{"Black", "White"});

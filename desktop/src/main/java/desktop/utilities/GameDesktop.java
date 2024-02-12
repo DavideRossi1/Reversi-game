@@ -30,8 +30,10 @@ public class GameDesktop extends Game {
         this.gameController = new GameControllerDesktop(board);
         guiManager = new GuiManager(this);
         addListenersToButtonGrid();
-        if (!blackPlayer.isHumanPlayer())
-            handleBotPlayerTurn(blackPlayer);
+        if (!blackPlayer.isHumanPlayer()) {
+            gameController.handleBotTurn(blackPlayer);
+            checkIfTurnCanBeSwapped();
+        }
     }
 
     /**
@@ -60,25 +62,25 @@ public class GameDesktop extends Game {
 
     private void handleHumanAndBotTurns(BoardTile position) {
         gameController.handleHumanTurn(position, getCurrentPlayerColor());
-        BoardDesktop currentBoard = gameController.getBoard();
-        if (aNewMoveHasBeenMade(currentBoard)) {
-            previousSteps.add(currentBoard.copy());
+        checkIfTurnCanBeSwapped();
+        Player currentPlayer = isBlackToMove() ? blackPlayer : whitePlayer;
+        if (!currentPlayer.isHumanPlayer()) {
+            gameController.handleBotTurn(currentPlayer);
+            previousSteps.add(gameController.getBoard().copy());
             swapTurn();
-            Player currentPlayer = isBlackToMove() ? blackPlayer : whitePlayer;
-            if (!currentPlayer.isHumanPlayer())
-                handleBotPlayerTurn(currentPlayer);
         }
-        gameController.computeValidMoves(getCurrentPlayerColor());
-        if (gameController.thereAreNoValidMoves())
-            gameController.handleNoValidMovesCase(getCurrentPlayerColor());
+        boolean thereAreNoValidMoves = gameController.checkIfThereAreNoValidMoves(getCurrentPlayerColor());
+        if (thereAreNoValidMoves) {
+            previousSteps.add(gameController.getBoard().copy());
+            swapTurn();
+        }
     }
 
-    private void handleBotPlayerTurn(Player currentPlayer) {
-        gameController.handleBotTurn(currentPlayer);
-        BoardDesktop currentBoard = gameController.getBoard();
-        if (aNewMoveHasBeenMade(currentBoard))
-            previousSteps.add(currentBoard.copy());
-        swapTurn();
+    private void checkIfTurnCanBeSwapped() {
+        if (aNewMoveHasBeenMade(gameController.getBoard())) {
+            previousSteps.add(gameController.getBoard().copy());
+            swapTurn();
+        }
     }
 
     private boolean aNewMoveHasBeenMade(BoardDesktop board) {
@@ -95,6 +97,7 @@ public class GameDesktop extends Game {
         int numberOfStepsBack = thereIsAComputerPlayer() ? 2 : 1;
         if (previousSteps.size() > numberOfStepsBack)
             undo(numberOfStepsBack);
+        //gameController.computeValidMoves(getCurrentPlayerColor());
         GuiManager.enableBoard();
     }
 
